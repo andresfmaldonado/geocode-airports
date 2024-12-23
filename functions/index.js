@@ -1,11 +1,8 @@
-const { OAuth2Client } = require('google-auth-library');
-const functions = require('firebase-functions');
-const opencage = require('opencage-api-client');
 const { initializeApp } = require('firebase-admin/app');
 const { getFirestore } = require('firebase-admin/firestore');
-
-const CLIENT_ID = process.env.CLIENT_ID;
-const oauthClient = new OAuth2Client(CLIENT_ID);
+const functions = require('firebase-functions');
+const opencage = require('opencage-api-client');
+const jwt = require('jsonwebtoken');
 
 initializeApp();
 const db = getFirestore();
@@ -16,14 +13,11 @@ async function checkToken(req) {
     return false; 
   }
 
-  const token = authHeader.split('Bearer')[1];
-  const ticket = await oauthClient.verifyIdToken({
-    idToken: token,
-    audience: CLIENT_ID,
-  });
-  const payload = ticket.getPayload();
-  if (payload === undefined) {
-    return false; 
+  const token = authHeader.split('Bearer ')[1];
+  const decodedToken = jwt.verify(token, process.env.SECRET_KEY);
+
+  if (decodedToken === undefined) {
+    return false;
   }
 
   return true;
@@ -170,4 +164,10 @@ exports.geocode = functions.https.onRequest(async (req, res) => {
       error: 'Error occurred while processing request',
     });
   }
+})
+
+exports.auth = functions.https.onRequest(async (req, res) => {
+  return res.status(200).send({
+    token: jwt.sign({}, process.env.SECRET_KEY)
+  });
 })
