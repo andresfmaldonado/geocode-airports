@@ -14,7 +14,32 @@ Esta guía mostrará los pasos necesarios para hacer la instalación y despliegu
 
 ## Creación y configuración de base de datos en FireStore
 
+- **1:** Crear la base de datos en Firestore
+```bash
+gcloud firestore databases create --location=[REGION] --project=[ID_DEL_PROYECTO]
+```
+Este comando creará la base de datos "(default)"
+
+- **2:** Registro de aeropuerto:
+ - crea la collecion "airports"
+ - Posterior crea un nuevo documento con los campos "id", "name" y "address", por ejemplo: 
+  ```json
+  {
+    "id": 2, // Debe ser numerico
+    "address": "Calle 100",
+    "name": "Aeropuerto 100"
+  }
+  ```
+
 ## Instalación y despliegue
+
+### env.yaml
+  SECRET_KEY: [Secrete key jwt]
+  OPENCAGE_API_KEY: [Key de la libreria Opencage]
+  GOOGLE_PROJECT_ID: [id del proyecto de GCP]
+
+### Configuracion jwt
+Ejecutar el comando ```bash openssl rand -hex 64 ```. Pegar el resultado en la variable `SECRET_KEY` dentro del archivo *env.yaml*
 
 ### Configuración de gcloud
 
@@ -24,6 +49,26 @@ gcloud config set project [ID_DEL_PROYECTO]
 ```
 
 ### Despliegue de la Cloud Function
+
+Para realizar el despliegue de la Cloud Function, despues de configurar gcloud se debe ejecutar el comando 
+
+```bash
+gcloud functions deploy geocode \
+  --gen2 \
+  --runtime=nodejs20 \
+  --region=us-central1 \
+  --trigger-http \
+  --allow-unaunthenticated \
+  --env-vars-file=env.yaml \
+  --max-instances=2 \
+  --timeout=60s \
+  --entry-point=geocode \
+  --source=. \
+  --project=prueba-domina \
+  --concurrency=2 \
+  --memory=256Mib \
+  --cpu=1
+```
 
 ### Prueba de la Cloud Function
 

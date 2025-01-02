@@ -60,12 +60,13 @@ const transformedData = (coordinate) => {
 
 /**
  * @api {get} /:airportId Request Airport Coordinate
+ * @apiVersion 1.0.0
  * @apiName GeoCode Airport
  * @apiGroup Airports
  * 
  * @apiHeader {String} Authorization Bearer <token>
  * 
- * @apiQuery {Number} airportId Airport's ID
+ * @apiParam {Number} airportId Airport's ID
  * 
  * @apiExample {curl} Example usage:
  *  curl -X GET 'http://localhost:3000/geocode?airportId=123' -H 'Authorization: Bearer asd123bcv'
