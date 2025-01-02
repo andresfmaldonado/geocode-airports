@@ -1,30 +1,35 @@
-const { initializeApp } = require('firebase-admin/app');
-const { getFirestore } = require('firebase-admin/firestore');
-const functions = require('firebase-functions');
 const opencage = require('opencage-api-client');
 const jwt = require('jsonwebtoken');
+const Firestore = require('@google-cloud/firestore');
 
-initializeApp();
-const db = getFirestore();
+const db = new Firestore({
+  projectId: process.env.GOOGLE_PROJECT_ID,
+});
 
-async function checkToken(req) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer')) {
-    return false; 
-  }
+const checkToken = (req) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer')) {
+      throw `Token not starts with Bearer`;
+    }
 
-  const token = authHeader.split('Bearer ')[1];
-  const decodedToken = jwt.verify(token, process.env.SECRET_KEY);
+    const token = authHeader.split('Bearer ')[1];
+    const decodedToken = jwt.verify(token, process.env.SECRET_KEY);
 
-  if (decodedToken === undefined) {
+    if (decodedToken === undefined) {
+      throw 'Token is invalid'
+    }
+
+    return true;
+  } catch (error) {
+    console.error(error);
     return false;
   }
-
-  return true;
 }
 
-async function saveCoordinate(id, coordinate) {
+const saveCoordinate = async (id, coordinate) => {
   const airportRef = await db.collection('airports').doc(id);
+
   await airportRef.set(coordinate, { merge: true }).then(() => {
     console.log('Coordinate saved');
   }).catch((error) => {
@@ -32,15 +37,15 @@ async function saveCoordinate(id, coordinate) {
   });
 }
 
-function arrayToKeyValueReduce(keysArray, valuesArray) {
+const arrayToKeyValueReduce = (keysArray, valuesArray) => {
   return keysArray.reduce((acc, key, index) => {
     acc[key] = valuesArray[index];
     return acc;
   }, {});
 }
 
-function transformedData(coordinate) {
-  const {lat, lng} = coordinate.annotations.DMS;
+const transformedData = (coordinate) => {
+  const { lat, lng } = coordinate.annotations.DMS;
   const latitudeArray = lat.split(' ');
   const longitudeArray = lng.split(' ');
   const keysForBD = ['grades', 'minutes', 'seconds', 'orientation'];
@@ -101,57 +106,70 @@ function transformedData(coordinate) {
  *  {
  *    "error": "Error occurred while processing request"
  *  }
+ * @apiError (405) Method_not_allowed Method not allowed
+ * @apiErrorExample {json} Method_not_allowed-Error:
+ *  HTTP/1.1 405 Method Not Allowed
+ *  {
+ *    "error": "Method not allowed"
+ *  }
  */
-exports.geocode = functions.https.onRequest(async (req, res) => {
+const geocode = async (req, res) => {
   try {
+    if (req.method !== 'GET') {
+      return res.status(405).send({ error: 'Method not allowed' });
+    }
+
     if (!await checkToken(req)) {
       return res.status(403).send({ error: 'Invalid token' });
-    } 
+    }
 
-    if (req.body.airportId === undefined) {
+    if (req.query.airportId === undefined) {
       return res.status(400).send({ error: 'Missing airportId' });
     }
 
-    const { airportId } = req.body;
-    
+    const { airportId } = req.query;
+
     const airportsRef = await db.collection('airports');
-    const airports = await airportsRef.where('id', '==', airportId).limit(1).get();
+
+    const airports = await airportsRef.where('id', '==', Number(airportId)).limit(1).get();
+    
     if (airports.empty) {
       return res.status(404).send({ error: 'Airport not found' });
     }
-    
+
     let airport, response;
     airports.forEach((doc) => airport = doc);
     if (airport != null) {
       const data = airport.data();
-      const {address, coordinate, lat, lng} = data;
+      const {address, coordinate, lat, lng, name} = data;
       if (coordinate === undefined) {
         opencage.geocode({q: address}).then(async (coordinate) => {
           if (coordinate.status.code === 200 && coordinate.results.length > 0) {
             const coordinateTransformed = transformedData(coordinate.results[0]);
             await saveCoordinate(airport.id, coordinateTransformed);
             response = {
-              name: airport.address,
+              name,
               latitude: coordinateTransformed.lat,
               longitude: coordinateTransformed.lng,
             };
           } else {
-            response = { name: airport.address, error: 'No results found' };
+            response = { 
+              name, 
+              error: 'No results found' 
+            };
           }
           return res.status(200).send(response);
         }).catch((error) => {
           console.error(error);
           return res.status(500).send({error: 'Error occurred while processing request'});
-        })
+        });
       } else {
-        console.log('Coordinate already saved');
         response = { 
-          name: address, 
+          name, 
           latitude: lat,
           longitude: lng,
         }
-        console.log(response);
-        
+
         return res.status(200).send(response);
       }
     } else {
@@ -164,10 +182,19 @@ exports.geocode = functions.https.onRequest(async (req, res) => {
       error: 'Error occurred while processing request',
     });
   }
-})
+};
 
-exports.auth = functions.https.onRequest(async (req, res) => {
+const auth = async (req, res) => {
   return res.status(200).send({
     token: jwt.sign({}, process.env.SECRET_KEY)
   });
-})
+};
+
+module.exports = {
+  checkToken,
+  saveCoordinate,
+  arrayToKeyValueReduce,
+  transformedData,
+  auth,
+  geocode
+}

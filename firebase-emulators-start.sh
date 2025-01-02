@@ -1,5 +1,0 @@
-#! /bin/bash
-
-"$JAVA_HOME/bin/java" -jar $(which firebase) "$@"
-
-/c/Users/Andres.maldonado/bin:/mingw64/bin:/usr/local/bin:/usr/bin:/bin:/mingw64/bin:/usr/bin:/c/Users/Andres.maldonado/bin:/c/ProgramData/Oracle/Java/javapath:/c/WINDOWS/system32:/c/WINDOWS:/c/WINDOWS/System32/Wbem:/c/WINDOWS/System32/WindowsPowerShell/v1.0:/c/WINDOWS/System32/OpenSSH:/c/Program Files/PuTTY:/c/ProgramData/chocolatey/bin:/c/xampp/php:/c/composer:/cmd:/c/Program Files/Docker/Docker/resources/bin:/c/ProgramData/DockerDesktop/version-bin:/c/Program Files/dotnet:%NVM_HOME%:%NVM_SYMLINK%:/c/Program Files/Amazon/AWSCLIV2:/c/Users/Andres.maldonado/Documents/jdk11/bin:/c/Users/Andres.maldonado/AppData/Roaming/nvm/v18.18.2:/c/xampp/php/PEAR:/c/Users/Andres.maldonado/AppData/Local/Google/Cloud SDK/google-cloud-sdk/bin:/c/Users/Andres.maldonado/Documents/sonar-scanner/bin:/c/Users/Andres.maldonado/AppData/Local/Programs/Microsoft VS Code/bin:/c/Users/Andres.maldonado/AppData/Local/Microsoft/WindowsApps:/usr/bin/vendor_perl:/usr/bin/core_perl

@@ -1,0 +1,12 @@
+{
+  "name": "geocode",
+  "description": "Geocode airport API",
+  "main": "index.js",
+  "dependencies": {
+    "opencage-api-client": "1.0.7",
+    "jsonwebtoken": "9.0.2",
+    "@google-cloud/functions-framework": "3.4.4",
+    "firebase-admin": "13.0.2",
+    "@google-cloud/firestore": "7.11.0"
+  }
+}
