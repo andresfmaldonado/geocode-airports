@@ -8,9 +8,9 @@ Esta guía mostrará los pasos necesarios para hacer la instalación y despliegu
 
 * Tener activa la cuenta de GCP donde se subirá la Cloud Function
 * Crear previamente el proyecto en GCP
-* Instalar y configurar Google Cloud SDK - gcloud (Opcional)
+* Instalar y configurar Google Cloud SDK - gcloud
 * Tener instalado Node.js (Versión 20 o superior)
-* Configurar debidamente los permisos de IAM para crear y desplegar Cloud Functions
+* Configurar debidamente los permisos de IAM para crear y desplegar Cloud Functions, y administrar base de datos firestore
 
 ## Creación y configuración de base de datos en FireStore
 
@@ -56,7 +56,7 @@ Para realizar el despliegue de la Cloud Function, despues de configurar gcloud s
 gcloud functions deploy geocode \
   --gen2 \
   --runtime=nodejs20 \
-  --region=us-central1 \
+  --region=[REGION] \
   --trigger-http \
   --allow-unaunthenticated \
   --env-vars-file=env.yaml \
@@ -64,7 +64,7 @@ gcloud functions deploy geocode \
   --timeout=60s \
   --entry-point=geocode \
   --source=. \
-  --project=prueba-domina \
+  --project=[ID_DEL_PROYECTO] \
   --concurrency=2 \
   --memory=256Mib \
   --cpu=1
