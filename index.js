@@ -1,3 +1,6 @@
+const { SecretManagerServiceClient } = require('@google-cloud/secret-manager');
+
+const client = new SecretManagerServiceClient();
 const opencage = require('opencage-api-client');
 const jwt = require('jsonwebtoken');
 const Firestore = require('@google-cloud/firestore');
@@ -6,15 +9,19 @@ const db = new Firestore({
   projectId: process.env.GOOGLE_PROJECT_ID,
 });
 
-const checkToken = (req) => {
+const checkToken = async (req) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer')) {
       throw `Token not starts with Bearer`;
     }
 
+    const secretName = process.env.SECRET_KEY;
+    const [version] = await client.accessSecretVersion({ name: secretName });
+    const secretValue = version.payload.data.toString();
+
     const token = authHeader.split('Bearer ')[1];
-    const decodedToken = jwt.verify(token, process.env.SECRET_KEY);
+    const decodedToken = jwt.verify(token, secretValue);
 
     if (decodedToken === undefined) {
       throw 'Token is invalid'
@@ -144,6 +151,9 @@ const geocode = async (req, res) => {
       const data = airport.data();
       const {address, coordinate, lat, lng, name} = data;
       if (coordinate === undefined) {
+        const secretName = process.env.OPENCAGE_API_KEY;
+        const [version] = await client.accessSecretVersion({ name: secretName });
+        process.env.OPENCAGE_API_KEY = version.payload.data.toString();
         opencage.geocode({q: address}).then(async (coordinate) => {
           if (coordinate.status.code === 200 && coordinate.results.length > 0) {
             const coordinateTransformed = transformedData(coordinate.results[0]);
