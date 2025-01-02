@@ -18,3 +18,5 @@ steps:
       - --concurrency=2 
       - --memory=256Mib
       - --cpu=1
+options:
+  logging: CLOUD_LOGGING_ONLY
