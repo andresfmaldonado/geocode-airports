@@ -10,7 +10,7 @@ Esta guía mostrará los pasos necesarios para hacer la instalación y despliegu
 * Crear previamente el proyecto en GCP
 * Instalar y configurar Google Cloud SDK - gcloud
 * Tener instalado Node.js (Versión 20 o superior)
-* Configurar debidamente los permisos de IAM para crear y desplegar Cloud Functions, y administrar base de datos firestore
+* Configurar debidamente los permisos de IAM para crear y desplegar Cloud Functions, administrar base de datos firestore y acceso a los secretos
 
 ## Creación y configuración de base de datos en FireStore
 
@@ -34,12 +34,20 @@ Este comando creará la base de datos "(default)"
 ## Instalación y despliegue
 
 ### env.yaml
-  SECRET_KEY: [Secrete key jwt]
-  OPENCAGE_API_KEY: [Key de la libreria Opencage]
-  GOOGLE_PROJECT_ID: [id del proyecto de GCP]
+  SECRET_KEY: projects/[ID_DEL_PROYECTO]/secrets/SECRET_KEY_JWT/versions/latest
+  OPENCAGE_API_KEY: projects/[ID_DEL_PROYECTO]/secrets/OPENCAGE_API_KEY/versions/latest
+  GOOGLE_PROJECT_ID: prueba-domina
 
-### Configuracion jwt
-Ejecutar el comando ```bash openssl rand -hex 64 ```. Pegar el resultado en la variable `SECRET_KEY` dentro del archivo *env.yaml*
+### Creacion de secretos
+Ejecutar los siguientes comandos para crear los secretos necesarios para la cloud function
+```bash
+EXPORT SECRET_JWT=$(openssl rand -hex 64 )
+gcloud secrets create SECRET_KEY_JWT --replication-policy="automatic"
+printf $SECRET_JWT | gcloud secrets versions add SECRET_KEY_JWT --data-file=- --project=[ID_DEL_PROYECTO]
+
+gcloud secrets create OPENCAGE_API_KEY --replication-policy="automatic"
+printf [LICENCE-KEY-OPENCAGE] | gcloud secrets versions add OPENCAGE_API_KEY --data-file=- --project=[ID_DEL_PROYECTO]
+```
 
 ### Configuración de gcloud
 
