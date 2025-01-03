@@ -1,5 +1,5 @@
 steps:
-  - name: airportGeocodeFunc
+  - name: "airportGeocodeFunc"
     entrypoint: gcloud
     args: 
       - functions
