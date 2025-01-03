@@ -21,3 +21,5 @@ env.yaml
 package-lock.json
 docs
 test
+apidoc.json
+cloudbuild.yaml
