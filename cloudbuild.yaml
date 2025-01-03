@@ -1,5 +1,6 @@
 steps:
-  - entrypoint: gcloud
+  - name: airportGeocodeFunc
+    entrypoint: gcloud
     args: 
       - functions
       - deploy
