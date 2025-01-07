@@ -29,3 +29,5 @@ steps:
       - --cpu=1
 options:
   logging: CLOUD_LOGGING_ONLY
+tags:
+  - airportGeocodeDeploy
