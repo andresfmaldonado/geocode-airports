@@ -97,3 +97,14 @@ Previo a esto se deben realizar las siguientes configuraciones en Google Cloud P
 2. Crear un "Activador" en el apartado "Activadores" de Cloud Build y relacionarlo al repositorio anteriormente vinculado. Establecer tambien la rama que será vinculada al activador
 3. Habilitar los permisos necesarios a la cuenta de servicio que corresponda en el apartado "Configuracion" de Cloud Build
 4. Subir un cambio a la rama vinculada para que Cloud Build ejecute los pasos definidos para las pruebas unitarias y despliegue de la Cloud Function.
+
+## Dependencias
+
+- [OpenCage API](https://github.com/tsamaya/opencage-api-client): Api de georeferenciacion con licencia de prueba. 
+- [Google Cloud Functions Framework](https://www.npmjs.com/package/@google-cloud/functions-framework): Libreria usada para probar las funciones de manera local
+- [Google Cloud Firestore](https://www.npmjs.com/package/@google-cloud/firestore): Libreria usada para consumo de base de datos Firestore alojada en GCP
+- [Google Cloud Secret Manage](https://www.npmjs.com/package/@google-cloud/secret-manager): Libreria usada para gestion de secretos configurados paras cloud functions
+- [Json Web Token](https://www.npmjs.com/package/jsonwebtoken): Libreria usada para gestión de token de autenticación jwt
+
+### Dependencias de desarrollo
+- [Jest](https://www.npmjs.com/package/jest): Ejecución de pruebas unitarias
